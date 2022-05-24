@@ -29,12 +29,13 @@ function addGridEventListeners(gridElement) {
 
     });
     gridElement.addEventListener('mouseover', changeColour);
-    gridElement.addEventListener('click', (e) => gridElement.style.backgroundColor = penColourPicker.value);
+    gridElement.addEventListener('click', changeColour);
 }
 
 function updateGridSize() {
     grid.replaceChildren();
     grid.style.cssText = `grid-template-columns: repeat(${sizeSlider.value}, 1fr); grid-template-rows: repeat(${sizeSlider.value}, 1fr)`
+    updateGridBGColour();
 
     for (let i = 0; i < sizeSlider.value ** 2; i++) {
         const gridElement = document.createElement('div');
@@ -56,16 +57,28 @@ function toggleGridLines() {
     let gridElements = grid.children;
 
     if (linesToggled) {
+        toggleGridLinesBtn.classList.add('btn-on');
         grid.classList.add('grid-toggled');
         for (element of gridElements) {
             element.classList.remove('grid-element-border');
         }
     }
     else {
+        toggleGridLinesBtn.classList.remove('btn-on');
         grid.classList.remove('grid-toggled');
         for (element of gridElements) {
             element.classList.add('grid-element-border');
         }
+    }
+}
+
+function toggleEraser() {
+    eraserOn = !eraserOn;
+    if (eraserOn) {
+        eraserBtn.classList.add('btn-on');
+    }
+    else {
+        eraserBtn.classList.remove('btn-on');
     }
 }
 
@@ -80,9 +93,20 @@ function updatePenColour() {
 }
 
 function changeColour(e) {
-    if (e.type === 'mouseover' && mouseDown) {
-        console.log(e.type);
-        e.target.style.backgroundColor = currentColour;
+    if ((e.type === 'mouseover' && mouseDown) || e.type === 'click') {
+        if (eraserOn) {
+            e.target.style.removeProperty('background-color');
+        }
+        else {
+            e.target.style.backgroundColor = currentColour;
+        }
+    }
+}
+
+function clearGrid() {
+    console.log(grid.children);
+    for (element of grid.children) {
+        element.style.removeProperty('background-color');
     }
 }
 
@@ -103,9 +127,15 @@ bgColourPicker.addEventListener('input', updateGridBGColour);
 
 
 
-const toggleGridLinesBtn = document.querySelector('#toggleLinesBtn')
+const toggleGridLinesBtn = document.querySelector('#toggleLinesBtn');
 toggleGridLinesBtn.addEventListener('click', toggleGridLines);
+
+const clearBtn = document.querySelector('#clearBtn');
+const eraserBtn = document.querySelector('#eraserBtn');
+clearBtn.addEventListener('click', clearGrid);
+eraserBtn.addEventListener('click', toggleEraser);
 
 let mouseDown = false;
 let currentColour = 'black';
 let linesToggled = false;
+let eraserOn = false;
