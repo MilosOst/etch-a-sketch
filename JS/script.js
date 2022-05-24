@@ -10,11 +10,19 @@ function createInitialGrid() {
         const gridElement = document.createElement('div');
         gridElement.classList.add('grid-element');
         gridElement.classList.add('grid-element-border');
+        gridElement.setAttribute('draggable', 'false');
+
+        // Add eventListeners for changing colour on hover and mouseDown
+        gridElement.addEventListener('mousedown', () => mouseDown = true);
+
+        // Need to add event listener for window otherwise mouseDown does not update when going outside of the grid
+        window.addEventListener('mouseup', () => mouseDown = false);
+        gridElement.addEventListener('mouseover', changeColour);
+
         grid.appendChild(gridElement);
     }
     
 }
-
 
 function updateSizeLabel() {
     sizeLabel.textContent =`Grid Size: ${sizeSlider.value} x ${sizeSlider.value}`
@@ -28,6 +36,7 @@ function updateGridSize() {
         const gridElement = document.createElement('div');
         gridElement.classList.add('grid-element');
         gridElement.classList.add('grid-element-border');
+        gridElement.setAttribute('draggable', 'false');
         grid.appendChild(gridElement);
     }
 }
@@ -41,27 +50,41 @@ function clearGridLines() {
     }
 }
 
+function updateGridBGColour() {
+    bgColourPicker.style.backgroundColor = bgColourPicker.value;
+    grid.style.backgroundColor = bgColourPicker.value;
+}
+
+function updatePenColour() {
+    penColourPicker.style.backgroundColor = penColourPicker.value;
+    currentColour = penColourPicker.value;
+}
+
+function changeColour(e) {
+    if (e.type === 'mouseover' && mouseDown) {
+        e.target.style.backgroundColor = currentColour;
+    }
+}
+
+
+
 
 const grid = document.querySelector('.grid-container');
 const sizeSlider = document.querySelector('#sizeSlider');
 const sizeLabel = document.querySelector('#sizeLabel');
-sizeSlider.addEventListener('input', updateSizeLabel);
-sizeSlider.addEventListener('change', updateGridSize);
-
-
-
 const penColourPicker = document.querySelector('#pen-colour');
 const bgColourPicker = document.querySelector('#bg-colour');
-penColourPicker.addEventListener('input', () => penColourPicker.style.backgroundColor = penColourPicker.value);
-bgColourPicker.addEventListener('input', () =>  {
-    bgColourPicker.style.backgroundColor = bgColourPicker.value;
-    grid.style.backgroundColor = bgColourPicker.value;
-});
 
 
-
+sizeSlider.addEventListener('input', updateSizeLabel);
+sizeSlider.addEventListener('change', updateGridSize);
+penColourPicker.addEventListener('input', updatePenColour);
+bgColourPicker.addEventListener('input', updateGridBGColour);
 
 
 
 const toggleGridLinesBtn = document.querySelector('#toggleLinesBtn')
 toggleGridLinesBtn.addEventListener('click', clearGridLines);
+
+let mouseDown = false;
+let currentColour = 'black';
