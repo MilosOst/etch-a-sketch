@@ -1,7 +1,10 @@
+* {
+    box-sizing: border-box;
+}
+
 html {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
@@ -81,4 +84,9 @@ input[type="color"]::-webkit-color-swatch {
     border: 1px solid black;
     cursor: pointer;
     width: 100%;
+}
+
+.grid-toggled {
+    border-top: 1px solid rgba(149, 149, 149, 1);
+    border-left: 1px solid rgba(149, 149, 149, 1);
 }

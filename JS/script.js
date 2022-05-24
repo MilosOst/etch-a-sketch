@@ -1,6 +1,8 @@
 const DEFAULT_SIZE = 8;
 
 window.onload = createInitialGrid;
+window.addEventListener('mouseup', () => mouseDown = false);
+window.addEventListener('dragstart', (e) => e.preventDefault());
 
 
 function createInitialGrid() {
@@ -11,21 +13,23 @@ function createInitialGrid() {
         gridElement.classList.add('grid-element');
         gridElement.classList.add('grid-element-border');
         gridElement.setAttribute('draggable', 'false');
-
-        // Add eventListeners for changing colour on hover and mouseDown
-        gridElement.addEventListener('mousedown', () => mouseDown = true);
-
-        // Need to add event listener for window otherwise mouseDown does not update when going outside of the grid
-        window.addEventListener('mouseup', () => mouseDown = false);
-        gridElement.addEventListener('mouseover', changeColour);
+        addGridEventListeners(gridElement);
 
         grid.appendChild(gridElement);
     }
     
 }
 
-function updateSizeLabel() {
-    sizeLabel.textContent =`Grid Size: ${sizeSlider.value} x ${sizeSlider.value}`
+function addGridEventListeners(gridElement) {
+    gridElement.addEventListener('mousedown', (e) => {
+        // Verify that it is the left mouse button being clicked
+        if (e.button === 0){
+            mouseDown = true;
+        }
+
+    });
+    gridElement.addEventListener('mouseover', changeColour);
+    gridElement.addEventListener('click', (e) => gridElement.style.backgroundColor = penColourPicker.value);
 }
 
 function updateGridSize() {
@@ -37,16 +41,31 @@ function updateGridSize() {
         gridElement.classList.add('grid-element');
         gridElement.classList.add('grid-element-border');
         gridElement.setAttribute('draggable', 'false');
+        addGridEventListeners(gridElement);
+
         grid.appendChild(gridElement);
     }
 }
 
-function clearGridLines() {
+function updateSizeLabel() {
+    sizeLabel.textContent =`Grid Size: ${sizeSlider.value} x ${sizeSlider.value}`
+}
+
+function toggleGridLines() {
+    linesToggled = !linesToggled;
     let gridElements = grid.children;
-    grid.style.borderTop = '1px solid rgba(149, 149, 149, 1)';
-    grid.style.borderLeft = '1px solid rgba(149, 149, 149, 1)';
-    for (element of gridElements) {
-        element.classList.remove('grid-element-border');
+
+    if (linesToggled) {
+        grid.classList.add('grid-toggled');
+        for (element of gridElements) {
+            element.classList.remove('grid-element-border');
+        }
+    }
+    else {
+        grid.classList.remove('grid-toggled');
+        for (element of gridElements) {
+            element.classList.add('grid-element-border');
+        }
     }
 }
 
@@ -62,6 +81,7 @@ function updatePenColour() {
 
 function changeColour(e) {
     if (e.type === 'mouseover' && mouseDown) {
+        console.log(e.type);
         e.target.style.backgroundColor = currentColour;
     }
 }
@@ -84,7 +104,8 @@ bgColourPicker.addEventListener('input', updateGridBGColour);
 
 
 const toggleGridLinesBtn = document.querySelector('#toggleLinesBtn')
-toggleGridLinesBtn.addEventListener('click', clearGridLines);
+toggleGridLinesBtn.addEventListener('click', toggleGridLines);
 
 let mouseDown = false;
 let currentColour = 'black';
+let linesToggled = false;
