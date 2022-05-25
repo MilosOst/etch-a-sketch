@@ -28,7 +28,8 @@ function createGridMap() {
 
 function addGridAttributes(gridElement, index) {
     gridElement.classList.add('grid-element');
-    gridElement.classList.add('grid-element-border');
+    
+    if (!linesToggled) gridElement.classList.add('grid-element-border');
     gridElement.setAttribute('draggable', 'false');
     gridElement.setAttribute('data-index', index);
 }
