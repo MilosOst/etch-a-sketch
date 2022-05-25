@@ -12,3 +12,6 @@ Create your own pixel art and have access to the following features:
 === Known Bugs ===
     
     - Changing the pen/background colour and then duplicating the tab does not reset the color wheel to the default colour
+    
+    
+[Live Version](https://milosost.github.io/etch-a-sketch/)
