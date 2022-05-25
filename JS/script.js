@@ -8,11 +8,12 @@ window.addEventListener('dragstart', (e) => e.preventDefault());
 function createInitialGrid() {
     grid.style.cssText = `grid-template-columns: repeat(${DEFAULT_SIZE}, 1fr); grid-template-rows: repeat(${DEFAULT_SIZE}, 1fr)`
 
-    for (let i = 0; i < DEFAULT_SIZE ** 2; i++) {
+    for (let i = 1; i <= DEFAULT_SIZE ** 2; i++) {
         const gridElement = document.createElement('div');
         gridElement.classList.add('grid-element');
         gridElement.classList.add('grid-element-border');
         gridElement.setAttribute('draggable', 'false');
+        gridElement.setAttribute('data-index', i)
         addGridEventListeners(gridElement);
 
         grid.appendChild(gridElement);
@@ -20,14 +21,23 @@ function createInitialGrid() {
     
 }
 
+function createGridMap() {
+    let i = 1;
+    gridMap = new Map();
+    for (item of grid.children) {
+        gridMap[i] = item;
+        i++;
+    }
+    return gridMap;
+}
+
 function addGridEventListeners(gridElement) {
     gridElement.addEventListener('mousedown', (e) => {
         // Verify that it is the left mouse button being clicked
-        if (e.button === 0){
+        if (e.button === 0) {
             mouseDown = true;
-        }
+        }});
 
-    });
     gridElement.addEventListener('mouseover', changeColour);
     gridElement.addEventListener('click', changeColour);
 }
@@ -37,11 +47,12 @@ function updateGridSize() {
     grid.style.cssText = `grid-template-columns: repeat(${sizeSlider.value}, 1fr); grid-template-rows: repeat(${sizeSlider.value}, 1fr)`
     updateGridBGColour();
 
-    for (let i = 0; i < sizeSlider.value ** 2; i++) {
+    for (let i = 1; i <= sizeSlider.value ** 2; i++) {
         const gridElement = document.createElement('div');
         gridElement.classList.add('grid-element');
         gridElement.classList.add('grid-element-border');
         gridElement.setAttribute('draggable', 'false');
+        gridElement.setAttribute('data-index', i)
         addGridEventListeners(gridElement);
 
         grid.appendChild(gridElement);
@@ -82,6 +93,16 @@ function toggleEraser() {
     }
 }
 
+function toggleFill() {
+    fillOn = !fillOn;
+    if (fillOn) {
+        fillBtn.classList.add('btn-on');
+    }
+    else {
+        fillBtn.classList.remove('btn-on');
+    }
+}
+
 function updateGridBGColour() {
     bgColourPicker.style.backgroundColor = bgColourPicker.value;
     grid.style.backgroundColor = bgColourPicker.value;
@@ -94,7 +115,11 @@ function updatePenColour() {
 
 function changeColour(e) {
     if ((e.type === 'mouseover' && mouseDown) || e.type === 'click') {
-        if (eraserOn) {
+        if (fillOn) {
+            let gridMap = createGridMap();
+            fillArea(e.target, gridMap);
+        }
+        else if (eraserOn) {
             e.target.style.removeProperty('background-color');
         }
         else {
@@ -104,12 +129,33 @@ function changeColour(e) {
 }
 
 function clearGrid() {
-    console.log(grid.children);
     for (element of grid.children) {
         element.style.removeProperty('background-color');
     }
 }
 
+
+function fillArea(gridElement, gridMap) {
+    if (!gridElement || gridElement.style.backgroundColor) {
+        return;
+    }
+    else {
+        gridElement.style.backgroundColor = currentColour;
+        let index = +gridElement.getAttribute('data-index');
+        let gridSize = +sizeSlider.value;
+
+        // Recursively call function adjacent cells
+        fillArea(gridMap[index - gridSize], gridMap); // cell above
+
+        // Verify cell is not on right edge
+        if (index % gridSize !== 0) fillArea(gridMap[index + 1], gridMap); //Cell to the right
+
+        fillArea(gridMap[index + gridSize], gridMap); // cell below
+
+        // Verify cell is not on left edge
+        if ((index - 1) % gridSize !== 0) fillArea(gridMap[index - 1], gridMap); // cell to the left
+    }
+}
 
 
 
@@ -132,10 +178,14 @@ toggleGridLinesBtn.addEventListener('click', toggleGridLines);
 
 const clearBtn = document.querySelector('#clearBtn');
 const eraserBtn = document.querySelector('#eraserBtn');
+const fillBtn = document.querySelector('#fillBtn');
+
 clearBtn.addEventListener('click', clearGrid);
 eraserBtn.addEventListener('click', toggleEraser);
+fillBtn.addEventListener('click', toggleFill);
 
 let mouseDown = false;
 let currentColour = 'black';
 let linesToggled = false;
 let eraserOn = false;
+let fillOn = false;
