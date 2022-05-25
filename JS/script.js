@@ -6,29 +6,31 @@ window.addEventListener('dragstart', (e) => e.preventDefault());
 
 
 function createInitialGrid() {
-    grid.style.cssText = `grid-template-columns: repeat(${DEFAULT_SIZE}, 1fr); grid-template-rows: repeat(${DEFAULT_SIZE}, 1fr)`
+    grid.style.cssText = `grid-template-columns: repeat(${DEFAULT_SIZE}, 1fr); grid-template-rows: repeat(${DEFAULT_SIZE}, 1fr)`;
 
     for (let i = 1; i <= DEFAULT_SIZE ** 2; i++) {
         const gridElement = document.createElement('div');
-        gridElement.classList.add('grid-element');
-        gridElement.classList.add('grid-element-border');
-        gridElement.setAttribute('draggable', 'false');
-        gridElement.setAttribute('data-index', i)
+        addGridAttributes(gridElement, i);
         addGridEventListeners(gridElement);
-
         grid.appendChild(gridElement);
     }
-    
 }
 
 function createGridMap() {
     let i = 1;
     gridMap = new Map();
-    for (item of grid.children) {
+    for (let item of grid.children) {
         gridMap[i] = item;
         i++;
     }
     return gridMap;
+}
+
+function addGridAttributes(gridElement, index) {
+    gridElement.classList.add('grid-element');
+    gridElement.classList.add('grid-element-border');
+    gridElement.setAttribute('draggable', 'false');
+    gridElement.setAttribute('data-index', index);
 }
 
 function addGridEventListeners(gridElement) {
@@ -44,23 +46,19 @@ function addGridEventListeners(gridElement) {
 
 function updateGridSize() {
     grid.replaceChildren();
-    grid.style.cssText = `grid-template-columns: repeat(${sizeSlider.value}, 1fr); grid-template-rows: repeat(${sizeSlider.value}, 1fr)`
+    grid.style.cssText = `grid-template-columns: repeat(${sizeSlider.value}, 1fr); grid-template-rows: repeat(${sizeSlider.value}, 1fr)`;
     updateGridBGColour();
 
     for (let i = 1; i <= sizeSlider.value ** 2; i++) {
         const gridElement = document.createElement('div');
-        gridElement.classList.add('grid-element');
-        gridElement.classList.add('grid-element-border');
-        gridElement.setAttribute('draggable', 'false');
-        gridElement.setAttribute('data-index', i)
+        addGridAttributes(gridElement, i);
         addGridEventListeners(gridElement);
-
         grid.appendChild(gridElement);
     }
 }
 
 function updateSizeLabel() {
-    sizeLabel.textContent =`Grid Size: ${sizeSlider.value} x ${sizeSlider.value}`
+    sizeLabel.textContent =`Grid Size: ${sizeSlider.value} x ${sizeSlider.value}`;
 }
 
 function toggleGridLines() {
@@ -129,7 +127,7 @@ function changeColour(e) {
 }
 
 function clearGrid() {
-    for (element of grid.children) {
+    for (let element of grid.children) {
         element.style.removeProperty('background-color');
     }
 }
